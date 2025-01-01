@@ -35,7 +35,7 @@ This PHP project detects the client's geolocation and VPN usage using the `ip-ap
 3. **Error Handling**: If the API call fails or returns an error, access is granted by default with a warning message.
 4. **Access Logic**:
    - Blocks clients using VPNs.
-   - Restricts access for users from specific countries (India and Israel).
+   - Restricts access for users from specific countries
 5. **Response**: Displays a message based on the access decision.
 
 ---
