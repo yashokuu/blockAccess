@@ -28,7 +28,7 @@ This PHP project detects the client's geolocation and VPN usage using the `ip-ap
    allow:Canada
    block:India
    block:Israel
-   superuser:Germany
+   superuser:Malaysia
    ```
 4. Add this code to the file where you want to restrict access:
    ```php
@@ -70,7 +70,7 @@ allow:USA
 allow:Canada
 block:India
 block:Israel
-superuser:Germany
+superuser:Malaysia
 ```
 
 ---
