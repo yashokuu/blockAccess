@@ -1,0 +1,10 @@
+# This file contains access rules for the website:
+# - 'allow' specifies countries that are explicitly allowed to access the site.
+# - 'block' specifies countries that are explicitly denied access to the site.
+# - 'superuser' specifies countries that are granted special access, overriding other restrictions.
+
+allow:USA         # Visitors from the USA are explicitly allowed.
+allow:Canada      # Visitors from Canada are explicitly allowed.
+block:India       # Visitors from India are explicitly blocked.
+block:Israel      # Visitors from Israel are explicitly blocked.
+superuser:Malaysia # Visitors from Germany are treated as superusers, granted access regardless of other rules.

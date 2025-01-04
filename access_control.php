@@ -6,6 +6,32 @@ function getGeolocationData($ip) {
     return json_decode($response, true);
 }
 
+// Function to parse access rules from access.txt
+function getAccessRules($filePath) {
+    $rules = [
+        'allow' => [],
+        'block' => [],
+        'superuser' => [],
+    ];
+
+    if (!file_exists($filePath)) {
+        return $rules; // Return empty rules if file doesn't exist
+    }
+
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        [$type, $country] = explode(':', $line) + [null, null];
+        $type = strtolower(trim($type));
+        $country = trim($country);
+
+        if (in_array($type, ['allow', 'block', 'superuser'], true) && $country) {
+            $rules[$type][] = $country;
+        }
+    }
+
+    return $rules;
+}
+
 // Get the client's IP address
 $clientIp = $_SERVER['REMOTE_ADDR'];
 
@@ -27,20 +53,36 @@ if ($geoData['status'] !== 'success') {
 $country = $geoData['country'] ?? 'Unknown';
 $isVpn = $geoData['proxy'] ?? false;
 
-// Block logic with specific messages
+// Load access rules
+$accessRules = getAccessRules('access.txt');
+
+// VPN blocking logic
 if ($isVpn) {
     echo "<div style='color: red; font-size: 18px;'>Access Denied: VPNs are not allowed on this website.</div>";
     exit;
 }
 
-if ($country === 'India') {
-    echo "<div style='color: red; font-size: 18px;'>Access Denied: Visitors from India are restricted from accessing this website.</div>";
+// Superuser access logic
+if (!empty($accessRules['superuser'])) {
+    if (in_array($country, $accessRules['superuser'], true)) {
+        echo "<div style='color: green; font-size: 18px;'>Access Granted: Welcome, Superuser from {$country}.</div>";
+        return;
+    } else {
+        echo "<div style='color: red; font-size: 18px;'>Access Denied: Only Superusers are allowed on this website.</div>";
+        exit;
+    }
+}
+
+// Block/allow logic
+if (in_array($country, $accessRules['block'], true)) {
+    echo "<div style='color: red; font-size: 18px;'>Access Denied: Visitors from {$country} are restricted from accessing this website.</div>";
     exit;
 }
 
-if ($country === 'Israel') {
-    echo "<div style='color: red; font-size: 18px;'>Access Denied: Visitors from Israeli Occupied Areas are restricted from accessing this website.</div>";
+if (!empty($accessRules['allow']) && !in_array($country, $accessRules['allow'], true)) {
+    echo "<div style='color: red; font-size: 18px;'>Access Denied: Visitors from {$country} are not in the allowed countries list.</div>";
     exit;
 }
 
+echo "<div style='color: green; font-size: 18px;'>Access Granted: Welcome, Visitor from {$country}.</div>";
 ?>

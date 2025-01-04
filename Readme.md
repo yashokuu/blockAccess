@@ -7,7 +7,7 @@ This PHP project detects the client's geolocation and VPN usage using the `ip-ap
 ## Features
 - Detects the client's country based on their IP address.
 - Identifies if the client is using a VPN or proxy.
-- Implements access restriction logic based on country and VPN usage.
+- Implements flexible access control logic using a configuration file (`access.txt`).
 - Provides user-friendly error messages in case of failures.
 
 ---
@@ -15,17 +15,26 @@ This PHP project detects the client's geolocation and VPN usage using the `ip-ap
 ## Requirements
 - PHP-enabled web server.
 - Internet access to query the IP-API service.
+- A configuration file named `access.txt` for access rules.
 
 ---
 
 ## Installation
 1. Clone or download the repository to your PHP server.
-2. Place the PHP file in your server's web directory.
-3. Add this code to the file that u want to restrict access
-```php
-<?php include "access_control.php"?>
-```
-3. Ensure the server can make outbound HTTP requests to `http://ip-api.com`.
+2. Place the PHP file (`access_control.php`) in your server's web directory.
+3. Create an `access.txt` file in the same directory with access rules. Example:
+   ```
+   allow:USA
+   allow:Canada
+   block:India
+   block:Israel
+   superuser:Germany
+   ```
+4. Add this code to the file where you want to restrict access:
+   ```php
+   <?php include "access_control.php"; ?>
+   ```
+5. Ensure the server can make outbound HTTP requests to `http://ip-api.com`.
 
 ---
 
@@ -34,24 +43,42 @@ This PHP project detects the client's geolocation and VPN usage using the `ip-ap
 2. **API Query**: The IP is sent to the IP-API service to fetch geolocation and VPN data.
 3. **Error Handling**: If the API call fails or returns an error, access is granted by default with a warning message.
 4. **Access Logic**:
-   - Blocks clients using VPNs.
-   - Restricts access for users from specific countries
+   - Reads `access.txt` to determine rules.
+   - Grants access to countries marked as `allow`.
+   - Denies access to countries marked as `block`.
+   - Overrides other rules for countries marked as `superuser`.
 5. **Response**: Displays a message based on the access decision.
 
 ---
 
 ## Customization
-- **Restricted Countries**:
-  Modify the `if ($country === 'India')` and `if ($country === 'Israel')` blocks to add or remove restrictions for other countries.
+- **Access Rules**:
+  Modify the `access.txt` file to add, remove, or update country rules.
 - **VPN Policy**:
-  Adjust the `if ($isVpn)` block to change the behavior for VPN users.
+  Adjust the `if ($isVpn)` block in `access_control.php` to change the behavior for VPN users.
+
+---
+
+## Example `access.txt`
+```plaintext
+# This file contains access rules for the website:
+# - 'allow' specifies countries that are explicitly allowed to access the site.
+# - 'block' specifies countries that are explicitly denied access to the site.
+# - 'superuser' specifies countries that are granted special access, overriding other restrictions.
+
+allow:USA
+allow:Canada
+block:India
+block:Israel
+superuser:Germany
+```
 
 ---
 
 ## Example Output
 ### Success
 ```html
-<div>Your access is granted. </div>
+<div>Your access is granted.</div>
 ```
 ### Restricted Access (VPN)
 ```html
@@ -65,6 +92,16 @@ This PHP project detects the client's geolocation and VPN usage using the `ip-ap
 ```html
 <div style='color: orange; font-size: 18px;'>Error: Unable to determine your location. Access granted by default.</div>
 ```
+
+---
+
+## Instructions for Use
+1. Add the `access_control.php` script to your PHP project.
+2. Create and configure the `access.txt` file with your desired rules.
+3. Include the `access_control.php` script in any PHP file where you want to apply access restrictions:
+   ```php
+   <?php include "access_control.php"; ?>
+   ```
 
 ---
 
