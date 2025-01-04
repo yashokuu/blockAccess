@@ -118,3 +118,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## Acknowledgments
 - [IP-API](http://ip-api.com) for providing the geolocation and VPN detection service.
+- Current Version : 2.0_Release
