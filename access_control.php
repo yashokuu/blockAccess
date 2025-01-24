@@ -11,7 +11,7 @@ function getAccessRules($filePath) {
     $rules = [
         'allow' => [],
         'block' => [],
-        'superuser' => [],
+        'only' => [],
     ];
 
     if (!file_exists($filePath)) {
@@ -24,7 +24,7 @@ function getAccessRules($filePath) {
         $type = strtolower(trim($type));
         $country = trim($country);
 
-        if (in_array($type, ['allow', 'block', 'superuser'], true) && $country) {
+        if (in_array($type, ['allow', 'block', 'only'], true) && $country) {
             $rules[$type][] = $country;
         }
     }
@@ -62,13 +62,13 @@ if ($isVpn) {
     exit;
 }
 
-// Superuser access logic
-if (!empty($accessRules['superuser'])) {
-    if (in_array($country, $accessRules['superuser'], true)) {
-        echo "<div style='color: green; font-size: 18px;'>Access Granted: Welcome, Superuser from {$country}.</div>";
+// "only" access logic
+if (!empty($accessRules['only'])) {
+    if (in_array($country, $accessRules['only'], true)) {
+        echo "<div style='color: green; font-size: 18px;'>Access Granted: Welcome, User from {$country}.</div>";
         return;
     } else {
-        echo "<div style='color: red; font-size: 18px;'>Access Denied: Only Superusers are allowed on this website.</div>";
+        echo "<div style='color: red; font-size: 18px;'>Access Denied: Only {$country} are allowed on this website.</div>";
         exit;
     }
 }
