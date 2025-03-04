@@ -1,5 +1,5 @@
 <a id="styles"></a>  
-<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=blockAccess (BA)" width="450"/>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=blockAccess" width="450"/>
 ---
 
 This PHP project detects the client's geolocation and VPN usage using the `ip-api` service and applies access control logic based on the detected data.
@@ -47,7 +47,7 @@ This PHP project detects the client's geolocation and VPN usage using the `ip-ap
 ---
 
 <a id="styles"></a>  
-<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=How it Works" width="450"/>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=How+It+Works" width="450"/>
 ---
 1. **IP Detection**: The script uses `$_SERVER['REMOTE_ADDR']` to get the client's IP address. If the server is behind a proxy, it checks `$_SERVER['HTTP_X_FORWARDED_FOR']` for the forwarded IP.
 2. **API Query**: The IP is sent to the IP-API service to fetch geolocation and VPN data.
@@ -72,7 +72,7 @@ This PHP project detects the client's geolocation and VPN usage using the `ip-ap
 ---
 
 <a id="styles"></a>  
-<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Example 'access.txt'" width="450"/>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Example+'access.txt'" width="450"/>
 ---
 ```plaintext
 # This file contains access rules for the website:
@@ -90,7 +90,7 @@ only:Malaysia
 ---
 
 <a id="styles"></a>  
-<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Instructions for use" width="450"/>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Instructions+for+use" width="450"/>
 ---
 1. Add the `access_control.php` script to your PHP project.
 2. Create and configure the `access.txt` file with your desired rules.
@@ -126,4 +126,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 
 <a id="styles"></a>  
-<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Version : 3_Beta" width="450"/>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Version+:+3_Beta" width="450"/>
