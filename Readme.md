@@ -75,26 +75,6 @@ only:Malaysia
 
 ---
 
-## Example Output
-### Success
-```html
-<div>Your access is granted.</div>
-```
-### Restricted Access (VPN)
-```html
-<div style='color: red; font-size: 18px;'>Access Denied: VPNs are not allowed on this website.</div>
-```
-### Restricted Access (Country)
-```html
-<div style='color: red; font-size: 18px;'>Access Denied: Visitors from India are restricted from accessing this website.</div>
-```
-### Error
-```html
-<div style='color: orange; font-size: 18px;'>Error: Unable to determine your location. Access granted by default.</div>
-```
-
----
-
 ## Instructions for Use
 1. Add the `access_control.php` script to your PHP project.
 2. Create and configure the `access.txt` file with your desired rules.
