@@ -7,7 +7,7 @@ ini_set('display_errors', 1);
 function getGeolocationData($ip) {
     $apiUrl = "http://ip-api.com/json/{$ip}?fields=status,message,country,countryCode,proxy";
     $response = @file_get_contents($apiUrl);
-    
+
     if (!$response) {
         return ['status' => 'fail', 'message' => 'API error'];
     }
@@ -15,13 +15,9 @@ function getGeolocationData($ip) {
     return json_decode($response, true);
 }
 
-function checkAccess() {
-    include "access_control.php"; // Run access checks
-}
-
 // Function to parse access rules
 function getAccessRules($filePath) {
-    $rules = ['allow' => [], 'block' => [], 'only' => []];
+    $rules = ['allow' => [], 'block' => [], 'only' => [], 'allow_vpn' => false];
 
     if (!file_exists($filePath)) {
         return $rules;
@@ -29,65 +25,58 @@ function getAccessRules($filePath) {
 
     $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
-        [$type, $country] = explode(':', $line) + [null, null];
-        $type = strtolower(trim($type));
-        $country = trim($country);
+        $parts = explode(':', $line);
+        if (count($parts) < 2) {
+            continue; // Skip invalid lines
+        }
 
-        if (in_array($type, ['allow', 'block', 'only'], true) && $country) {
-            $rules[$type][] = $country;
+        [$type, $value] = $parts;
+        $type = strtolower(trim($type ?? ''));
+        $value = trim($value ?? '');
+
+        if ($type === 'allow_vpn') {
+            $rules['allow_vpn'] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        } elseif (in_array($type, ['allow', 'block', 'only'], true) && $value) {
+            $rules[$type][] = $value;
         }
     }
 
     return $rules;
 }
 
-// Get client IP
-$clientIp = $_SERVER['REMOTE_ADDR'];
-if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-    $clientIp = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+// Function to check access
+function checkAccess($clientIp, $accessRules) {
+    $geoData = getGeolocationData($clientIp);
+
+    if ($geoData['status'] !== 'success') {
+        return ["Access granted by default due to API error.", "orange", "fa-exclamation-triangle", ""];
+    }
+
+    $country = $geoData['country'] ?? 'Unknown';
+    $countryCode = $geoData['countryCode'] ?? 'UN';
+    $isVpn = $geoData['proxy'] ?? false;
+    $flagUrl = "https://flagsapi.com/{$countryCode}/flat/64.png";
+
+    if ($isVpn && !$accessRules['allow_vpn']) {
+        return ["VPNs are not allowed on this website.", "red", "fa-ban", $flagUrl];
+    }
+
+    if (!empty($accessRules['only']) && !in_array($country, $accessRules['only'], true)) {
+        return ["Only visitors from selected countries are allowed.", "red", "fa-times-circle", $flagUrl];
+    }
+
+    if (in_array($country, $accessRules['block'], true)) {
+        return ["Visitors from {$country} are restricted.", "red", "fa-times-circle", $flagUrl];
+    }
+
+    if (!empty($accessRules['allow']) && !in_array($country, $accessRules['allow'], true)) {
+        return ["Visitors from {$country} are not in the allowed list.", "red", "fa-times-circle", $flagUrl];
+    }
+
+    return ["Access granted.", "green", "fa-check-circle", $flagUrl];
 }
 
-// Fetch geolocation and VPN data
-$geoData = getGeolocationData($clientIp);
-
-// Handle API errors
-if ($geoData['status'] !== 'success') {
-    showBlockPage("Warning", "Unable to determine your location. Access granted by default.", "orange", "fa-exclamation-triangle", "");
-}
-
-// Extract country and VPN status
-$country = $geoData['country'] ?? 'Unknown';
-$countryCode = $geoData['countryCode'] ?? 'UN';
-$isVpn = $geoData['proxy'] ?? false;
-$flagUrl = "https://flagsapi.com/{$countryCode}/flat/64.png";
-
-// Load access rules
-$accessRules = getAccessRules(__DIR__ . '/access.txt');
-
-// VPN blocking logic
-if ($isVpn) {
-    showBlockPage("Access Denied", "VPNs are not allowed on this website.", "red", "fa-ban", $flagUrl);
-}
-
-// "only" access logic
-if (!empty($accessRules['only']) && !in_array($country, $accessRules['only'], true)) {
-    showBlockPage("Access Denied", "Only visitors from selected countries are allowed.", "red", "fa-times-circle", $flagUrl);
-}
-
-// Block logic
-if (in_array($country, $accessRules['block'], true)) {
-    showBlockPage("Access Denied", "Visitors from {$country} are restricted.", "red", "fa-times-circle", $flagUrl);
-}
-
-// Allow logic
-if (!empty($accessRules['allow']) && !in_array($country, $accessRules['allow'], true)) {
-    showBlockPage("Access Denied", "Visitors from {$country} are not in the allowed list.", "red", "fa-times-circle", $flagUrl);
-}
-
-// ✅ If access is granted, continue loading the main page
-return;
-
-// Function to display block page and stop execution
+// Function to display block page
 function showBlockPage($title, $message, $color, $icon, $flagUrl) {
     echo "
     <html>
@@ -102,39 +91,43 @@ function showBlockPage($title, $message, $color, $icon, $flagUrl) {
                 justify-content: center;
                 align-items: center;
                 height: 100vh;
-                background-color: #f4f4f4;
+                background: linear-gradient(135deg, #f4f4f4, #e0e0e0);
                 margin: 0;
             }
             .container {
                 text-align: center;
                 background: #fff;
-                padding: 30px;
-                border-radius: 12px;
-                box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-                max-width: 400px;
+                padding: 40px;
+                border-radius: 15px;
+                box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+                max-width: 450px;
                 width: 90%;
                 animation: fadeIn 0.6s ease-in-out;
             }
             h1 {
                 color: $color;
-                font-size: 24px;
+                font-size: 28px;
+                margin-bottom: 15px;
             }
             p {
-                color: #333;
-                font-size: 18px;
+                color: #555;
+                font-size: 20px;
+                margin-bottom: 20px;
             }
             .icon {
-                font-size: 50px;
+                font-size: 60px;
                 color: $color;
-                margin-bottom: 10px;
+                margin-bottom: 20px;
             }
             .flag {
-                margin-top: 15px;
-                width: 64px;
+                margin-top: 20px;
+                width: 80px;
                 height: auto;
+                border-radius: 5px;
+                box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
             }
             @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(-10px); }
+                from { opacity: 0; transform: translateY(-20px); }
                 to { opacity: 1; transform: translateY(0); }
             }
         </style>

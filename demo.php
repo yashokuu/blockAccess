@@ -1,6 +1,6 @@
 <?php 
 include "access_control.php";
 
-// Check access
+// Check access (Optional)
 echo checkAccess('access.txt');
 ?>
